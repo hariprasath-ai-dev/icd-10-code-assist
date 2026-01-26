@@ -1,0 +1,98 @@
+{
+  "metadata": {
+    "version": "2026",
+    "source": "Official ICD-10-CM Guidelines"
+  },
+  "rules": [
+    {
+      "rule_id": "SYMPTOMS_IN_ABSENCE_OF_DIAGNOSIS",
+      "source_section": "Section I.B.4",
+      "source_text": "Codes that describe symptoms and signs, as opposed to diagnoses, are acceptable for reporting purposes when a related definitive diagnosis has not been established (confirmed) by the provider.",
+      "trigger_keywords": [],
+      "interpretation": "Symptoms and signs may be coded only if the provider has not established a definitive, confirmed diagnosis.",
+      "action": "assign_symptom_codes_only_when_diagnosis_is_unconfirmed"
+    },
+    {
+      "rule_id": "INTEGRAL_SYMPTOMS_NOT_CODED",
+      "source_section": "Section I.B.5",
+      "source_text": "Signs and symptoms that are associated routinely with a disease process should not be assigned as additional codes, unless otherwise instructed by the classification.",
+      "trigger_keywords": [],
+      "interpretation": "When a routine symptom is part of a confirmed disease process, do not code the symptom separately unless instructed.",
+      "action": "do_not_assign_integral_symptom_codes"
+    },
+    {
+      "rule_id": "NON_INTEGRAL_SYMPTOMS_CODED",
+      "source_section": "Section I.B.6",
+      "source_text": "Additional signs and symptoms that may not be associated routinely with a disease process should be coded when present.",
+      "trigger_keywords": [],
+      "interpretation": "Signs or symptoms that are not typically part of a confirmed disease process must be coded as additional information.",
+      "action": "assign_non_integral_symptom_codes"
+    },
+    {
+      "rule_id": "ACUTE_AND_CHRONIC_CODING",
+      "source_section": "Section I.B.8",
+      "source_text": "If the same condition is described as both acute (subacute) and chronic, and separate subentries exist in the Alphabetic Index at the same indentation level, code both and sequence the acute (subacute) code first.",
+      "trigger_keywords": [
+        "acute",
+        "subacute",
+        "chronic"
+      ],
+      "interpretation": "When a condition is both acute and chronic, assign codes for both if the index provides separate entries at the same level, with the acute code appearing first.",
+      "action": "assign_both_codes_record_acute_code_first"
+    },
+    {
+      "rule_id": "SEQUELA_CODING_ORDER",
+      "source_section": "Section I.B.10",
+      "source_text": "Coding of sequela generally requires two codes sequenced in the following order: the condition or nature of the sequela is sequenced first. The sequela code is sequenced second.",
+      "trigger_keywords": [
+        "sequela"
+      ],
+      "interpretation": "When coding a late effect (sequela), the code for the resulting condition (residual) must be listed before the code identifying the original cause (sequela).",
+      "action": "sequence_residual_condition_first_then_sequela_code"
+    },
+    {
+      "rule_id": "IMPENDING_OR_THREATENED_NOT_OCCURRED",
+      "source_section": "Section I.B.11",
+      "source_text": "If it did not occur, reference the Alphabetic Index to determine if the condition has a subentry term for \"impending\" or \"threatened\"... If the subterms are not listed, code the existing underlying condition(s) and not the condition described as impending or threatened.",
+      "trigger_keywords": [
+        "impending",
+        "threatened"
+      ],
+      "interpretation": "For conditions described as impending or threatened that did not happen, use specific index entries for those terms; if none exist, code the underlying symptoms or conditions.",
+      "action": "check_index_for_impending_subterms_else_code_symptoms"
+    },
+    {
+      "rule_id": "UNCERTAIN_DIAGNOSIS_INPATIENT",
+      "source_section": "Section II.H",
+      "source_text": "If the diagnosis documented at the time of discharge is qualified as \"probable,\" \"suspected,\" \"likely,\" \"questionable,\" \"possible,\" or \"still to be ruled out,\" \"compatible with,\" \"consistent with,\" or other similar terms indicating uncertainty, code the condition as if it existed or was established.",
+      "trigger_keywords": [
+        "probable",
+        "suspected",
+        "likely",
+        "questionable",
+        "possible",
+        "still to be ruled out",
+        "compatible with",
+        "consistent with"
+      ],
+      "interpretation": "In inpatient hospital settings, conditions described with terms of uncertainty at discharge should be coded as if the diagnosis was confirmed.",
+      "action": "assign_diagnosis_code_as_if_confirmed"
+    },
+    {
+      "rule_id": "UNCERTAIN_DIAGNOSIS_OUTPATIENT",
+      "source_section": "Section IV.H",
+      "source_text": "Do not code diagnoses documented as \"probable\", \"suspected,\" \"questionable,\" \"rule out,\" \"compatible with,\" \"consistent with,\" or \"working diagnosis\" or other similar terms indicating uncertainty. Rather, code the condition(s) to the highest degree of certainty for that encounter/visit, such as symptoms, signs, abnormal test results, or other reason for the visit.",
+      "trigger_keywords": [
+        "probable",
+        "suspected",
+        "questionable",
+        "rule out",
+        "compatible with",
+        "consistent with",
+        "working diagnosis"
+      ],
+      "interpretation": "In outpatient settings, do not code uncertain diagnoses; instead, code to the highest level of certainty, such as symptoms or abnormal test results.",
+      "action": "assign_symptom_or_sign_codes_only"
+    }
+  ]
+}
