@@ -33,3 +33,9 @@ T21.32XA Burn of third degree of abdominal wall
 T31.0 Burns involving less than 10% of body surface
 X16.XXXA Contact with hot heating appliances, radiators and pipes
 Y92.9 Unspecified place or not applicable
+
+
+OPEN_ROUTER_KEY=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
+# OPENROUTER_MODEL=qwen/qwen3-235b-a22b-thinking-2507
+# OPENROUTER_MODEL=arcee-ai/trinity-large-preview:free
+OPENROUTER_MODEL=meta-llama/llama-3.3-70b-instruct:free
