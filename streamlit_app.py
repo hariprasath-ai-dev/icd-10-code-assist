@@ -1,6 +1,9 @@
 import streamlit as st
 import os
 import json
+import logging
+import time
+from datetime import datetime
 from llm_reader import LLMReader
 from llm_interpreter import LLMInterpreter
 from rule_engine import RuleEngine
@@ -8,6 +11,14 @@ from PyPDF2 import PdfReader
 from dotenv import load_dotenv
 
 load_dotenv()
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+logger = logging.getLogger(__name__)
 
 st.set_page_config(page_title="ICD-10-CM Coding Assistant", layout="wide")
 
@@ -31,42 +42,73 @@ def process_pdf(file):
 def main():
     st.title("🩺 ICD-10-CM Coding Assistant")
     st.sidebar.header("Control Panel")
+    
     uploaded_file = st.sidebar.file_uploader("Upload Medical PDF", type="pdf")
     show_exp = st.sidebar.checkbox("Full Rational Explanation", value=True)
     
     if uploaded_file:
+        start_time = time.time()
+        logger.info("=" * 80)
+        logger.info("NEW ANALYSIS SESSION STARTED")
+        logger.info(f"File: {uploaded_file.name}")
+        
         with st.status("Analyzing Medical Record...", expanded=True) as status:
             # 1. Extraction
             st.write("📖 Reading document...")
+            logger.info("Stage 1: Document extraction started")
             raw_text = process_pdf(uploaded_file)
-            reader = LLMReader()
+            logger.info(f"Extracted {len(raw_text)} characters from PDF")
+            
+            reader = LLMReader(provider="openrouter")
             structured_doc = reader.get_structured_data(raw_text)
+            logger.info("Stage 1: Document structured successfully")
             
             # 2. Interpretation
             st.write("🧠 Clinical Interpretation...")
-            interpreter = LLMInterpreter()
+            logger.info("Stage 2: Clinical interpretation started")
+            interpreter = LLMInterpreter(provider="openrouter")
             clinical_map = interpreter.interpret_meaning(structured_doc)
+            logger.info(f"Stage 2: Extracted {sum(len(v) for v in clinical_map.values())} clinical entities")
             
             # 3. Rule Engine
             st.write("⚖️ Rule-Based Mapping...")
+            logger.info("Stage 3: Rule engine processing started")
             engine = RuleEngine()
             candidates = engine.discover_candidates(clinical_map)
-            # Default to outpatient as user requested removal of toggle
+            logger.info(f"Stage 3: Found {sum(len(v) for v in candidates.values())} candidate codes")
+            
             initial_results, applied_refs = engine.enforce_guidelines(clinical_map, candidates, setting="outpatient")
+            logger.info(f"Stage 3: Applied {len(applied_refs)} guideline rules")
             
             # 4. AI Refinement (Accuracy Enforcement)
             st.write("🔍 Verifying & Refining (Strict Mode)...")
+            logger.info("Stage 4: AI refinement started")
             final_results = interpreter.refine_results(initial_results, clinical_map)
+            logger.info(f"Stage 4: Finalized {sum(len(v) for v in final_results.values())} codes")
             
             # 5. Explanation
             st.write("📝 Formal Explanation...")
+            logger.info("Stage 5: Generating explanation")
             explanation = interpreter.generate_explanation(final_results, applied_refs, clinical_map)
+            logger.info("Stage 5: Explanation generated successfully")
             
             # Logging
             with open("pipeline_debug.log", "a", encoding="utf-8") as f:
                 f.write(f"\n--- SESSION ---\nMAP: {json.dumps(clinical_map)}\nRESULTS: {json.dumps(final_results)}\n")
             
+            # Calculate elapsed time
+            end_time = time.time()
+            elapsed_seconds = int(end_time - start_time)
+            minutes = elapsed_seconds // 60
+            seconds = elapsed_seconds % 60
+            elapsed_time_str = f"{minutes:02d}:{seconds:02d}"
+            
             status.update(label="Analysis Complete", state="complete", expanded=False)
+            logger.info(f"ANALYSIS SESSION COMPLETED SUCCESSFULLY in {elapsed_time_str}")
+            logger.info("=" * 80)
+        
+        # Display elapsed time
+        st.success(f"✅ Analysis completed in **{elapsed_time_str}** (mm:ss)")
 
         # Output Display - Category Results FIRST
         st.header("📋 Analysis Results")
@@ -76,13 +118,16 @@ def main():
         
         # Display each category in its own section
         for category, codes in cat_list:
-            st.markdown(f"<div class='category-header'>{category}</div>", unsafe_allow_html=True)
             # Filter codes to ensure they exist in database
             valid_codes = [c for c in codes if c.replace(".", "") in engine.codes]
             
+            # Skip category if no valid codes
             if not valid_codes:
-                st.info("No validated ICD-10-CM codes found for this category.")
+                logger.info(f"Category '{category}' skipped - no valid codes")
                 continue
+            
+            st.markdown(f"<div class='category-header'>{category}</div>", unsafe_allow_html=True)
+            logger.info(f"Displaying category '{category}' with {len(valid_codes)} codes")
 
             cols = st.columns(2) 
             for idx, code in enumerate(valid_codes):
